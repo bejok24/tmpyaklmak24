@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OMI Kendaraan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#dfe5ea;
+      --panel:#f3f5f7;
+      --surface:#ffffff;
+      --soft:#eef2f5;
+      --line:#dfe5eb;
+      --text:#1f2937;
+      --muted:#6b7785;
+      --dark:#1d232a;
+      --yellow:#f3b009;
+      --yellow-dark:#ef9f00;
+      --shadow:0 1px 0 rgba(13,19,27,0.04);
+      --red:#d83d3d;
+      --green:#2d9f66;
+      --blue:#4d7ce7;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    .app{
+      width:100%;
+      max-width:1365px;
+      margin:0 auto;
+      padding:8px 8px 18px;
+    }
+
+    .topbar{
+      height:28px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      margin:0 0 10px;
+      padding-left:6px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      font-weight:600;
+      color:#212a33;
+    }
+
+    .brand .mini{
+      width:10px;height:10px;border-radius:50%;
+      background:linear-gradient(180deg,#2e3640,#0e1318);
+      box-shadow:0 0 0 1px rgba(255,255,255,.6),0 0 0 1px rgba(0,0,0,.15);
+      position:relative;
+    }
+
+    .brand .mini:before{
+      content:"";
+      position:absolute;inset:2px 2px auto auto;
+      width:4px;height:4px;border-radius:50%;
+      background:#e9edf2;
+      opacity:.8;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 340px 1fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .sidebar{
+      display:grid;
+      gap:14px;
+    }
+
+    .panel{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:10px;
+      box-shadow:var(--shadow);
+    }
+
+    .search-panel{
+      padding:12px 14px 20px;
+      min-height:214px;
+    }
+
+    .chip-group{
+      display:flex;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .seg{
+      display:flex;
+      align-items:center;
+      background:var(--soft);
+      border:1px solid var(--line);
+      border-radius:7px;
+      overflow:hidden;
+      width:100%;
+      max-width:194px;
+    }
+
+    .seg button{
+      appearance:none;
+      border:0;
+      background:transparent;
+      flex:1;
+      height:28px;
+      font-size:11px;
+      color:#45515f;
+      font-weight:600;
+      cursor:pointer;
+    }
+
+    .seg button.active{
+      background:#1d232a;
+      color:#fff;
+    }
+
+    .filter-grid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(120px,1fr));
+      gap:8px 10px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+      min-width:0;
+    }
+
+    .field label{
+      font-size:9px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-weight:700;
+    }
+
+    .field select,
+    .field input{
+      width:100%;
+      height:28px;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:6px;
+      padding:0 8px;
+      font-size:11px;
+      color:var(--text);
+      outline:none;
+    }
+
+    .field select{
+      appearance:none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #6c7580 50%),
+        linear-gradient(135deg, #6c7580 50%, transparent 50%);
+      background-position:
+        calc(100% - 14px) calc(50% - 2px),
+        calc(100% - 9px) calc(50% - 2px);
+      background-size:5px 5px,5px 5px;
+      background-repeat:no-repeat;
+      padding-right:22px;
+    }
+
+    .list-panel{
+      padding:12px 12px 14px;
+      min-height:250px;
+    }
+
+    .card-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .car-card{
+      position:relative;
+      border:1px solid var(--line);
+      border-radius:8px;
+      overflow:hidden;
+      background:#fff;
+      min-height:157px;
+    }
+
+    .car-card.active{
+      border-color:#dfe5eb;
+    }
+
+    .thumb{
+      position:relative;
+      height:78px;
+      background:var(--soft);
+      overflow:hidden;
+      border-bottom:1px solid var(--line);
+    }
+
+    .car-card:nth-child(1) .thumb svg .body{ fill:#dfe6eb; }
+    .car-card:nth-child(2) .thumb svg .body{ fill:#ea5a4b; }
+    .car-card:nth-child(3) .thumb svg .body{ fill:#d5d9db; }
+    .car-card:nth-child(4) .thumb svg .body{ fill:#d8dfe7; }
+    .car-card:nth-child(5) .thumb svg .body{ fill:#dbd9d9; }
+    .car-card:nth-child(6) .thumb svg .body{ fill:#d7dfe4; }
+    .car-card:nth-child(7) .thumb svg .body{ fill:#d5d8db; }
+    .car-card:nth-child(8) .thumb svg .body{ fill:#b8d7c3; }
+
+    .plate{
+      position:absolute;
+      left:8px;
+      bottom:8px;
+      font-size:8px;
+      font-weight:700;
+      color:#fff;
+      background:#161b22;
+      padding:2px 5px;
+      border-radius:3px;
+      letter-spacing:.05em;
+    }
+
+    .card-body{
+      padding:8px 8px 10px;
+    }
+
+    .card-title{
+      margin:0;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      color:#1d232a;
+    }
+
+    .card-meta{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.3;
+    }
+
+    .price{
+      margin-top:6px;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:-.02em;
+      color:#1d232a;
+    }
+
+    .price small{
+      font-size:10px;
+      font-weight:600;
+      color:var(--muted);
+    }
+
+    .main{
+      display:grid;
+      gap:16px;
+      min-width:0;
+    }
+
+    .detail-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin:2px 2px 8px;
+      padding:0 4px;
+      gap:8px;
+    }
+
+    .crumb{
+      font-size:11px;
+      color:var(--muted);
+      font-weight:500;
+      white-space:nowrap;
+    }
+
+    .detail-card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:10px;
+      overflow:hidden;
+      min-height:620px;
+    }
+
+    .vehicle-art{
+      position:relative;
+      height:152px;
+      background:linear-gradient(180deg,#dfeaf5,#dfeaf5);
+      border-bottom:1px solid var(--line);
+    }
+
+    .vehicle-art svg{
+      display:block;
+      width:100%;
+      height:100%;
+    }
+
+    .vehicle-art .plate{
+      bottom:14px;
+      left:14px;
+      font-size:10px;
+      padding:3px 7px;
+    }
+
+    .detail-body{
+      padding:14px 16px 18px;
+    }
+
+    .row1{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .name-wrap h2{
+      margin:0;
+      font-size:20px;
+      line-height:1.15;
+      letter-spacing:-.03em;
+      font-weight:800;
+      color:#1c2430;
+    }
+
+    .variant{
+      margin-top:2px;
+      color:#778291;
+      font-size:12px;
+    }
+
+    .price-big{
+      font-size:19px;
+      font-weight:800;
+      letter-spacing:-.03em;
+      white-space:nowrap;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      border:1px solid var(--line);
+      border-radius:8px;
+      overflow:hidden;
+      margin-bottom:14px;
+    }
+
+    .stat{
+      padding:8px 10px;
+      border-right:1px solid var(--line);
+      background:#fff;
+      min-height:52px;
+    }
+
+    .stat:last-child{border-right:none}
+    .stat .label{
+      display:block;
+      font-size:9px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:700;
+      margin-bottom:4px;
+    }
+    .stat .value{
+      font-size:12px;
+      font-weight:700;
+      display:block;
+      color:#1f2937;
+    }
+
+    .desc{
+      color:#3a4858;
+      font-size:12px;
+      line-height:1.7;
+      margin:0 0 16px;
+      max-width:720px;
+    }
+
+    .seller-box{
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:linear-gradient(180deg,#f8fafc,#f5f8fa);
+      margin-bottom:14px;
+    }
+
+    .seller{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .avatar{
+      width:28px;height:28px;border-radius:50%;
+      display:grid;place-items:center;
+      background:#1d232a;color:#fff;
+      font-size:12px;font-weight:700;
+    }
+
+    .seller-info b{
+      display:block;
+      font-size:12px;
+      margin-bottom:2px;
+    }
+    .seller-info small{
+      display:block;
+      color:var(--muted);
+      font-size:10px;
+    }
+
+    .cta{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .input-row{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .money{
+      flex:1 1 220px;
+      min-width:180px;
+      height:34px;
+      border:1px solid var(--line);
+      border-radius:7px;
+      background:#fff;
+      padding:0 12px;
+      font-size:13px;
+      font-weight:600;
+      color:#1f2937;
+    }
+
+    .btn{
+      border:1px solid var(--line);
+      background:#fff;
+      color:#1f2937;
+      border-radius:7px;
+      height:34px;
+      padding:0 14px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.15s ease;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{
+      background:var(--yellow);
+      border-color:var(--yellow);
+      color:#1c1d20;
+    }
+
+    .offer-status{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+      min-height:28px;
+      font-size:12px;
+      color:#364250;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      height:20px;
+      padding:0 8px;
+      border-radius:999px;
+      font-size:9px;
+      text-transform:uppercase;
+      font-weight:800;
+      letter-spacing:.06em;
+    }
+
+    .pill.accept{
+      background:#d9f2e7;
+      color:#1d8a53;
+    }
+    .pill.counter{
+      background:#dfeafc;
+      color:#2a5ecb;
+    }
+    .pill.reject{
+      background:#fbe2e2;
+      color:#bf3f3f;
+    }
+
+    .simbox{
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:12px 12px 10px;
+      background:linear-gradient(180deg,#fbfcfd,#f4f8fb);
+      margin-top:14px;
+    }
+
+    .sim-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .sim-head h3{
+      margin:0;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .sim-selects{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .sim-selects select{
+      height:30px;
+      min-width:105px;
+      border:1px solid var(--line);
+      border-radius:6px;
+      background:#fff;
+      padding:0 30px 0 8px;
+      font-size:11px;
+      appearance:none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #6c7580 50%),
+        linear-gradient(135deg, #6c7580 50%, transparent 50%);
+      background-position:
+        calc(100% - 14px) calc(50% - 2px),
+        calc(100% - 9px) calc(50% - 2px);
+      background-size:5px 5px,5px 5px;
+      background-repeat:no-repeat;
+    }
+
+    .sim-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:8px;
+    }
+
+    .mini-box{
+      background:#eef2f5;
+      border:1px solid var(--line);
+      border-radius:6px;
+      padding:8px 10px;
+      min-height:58px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    .mini-box.hot{
+      background:var(--yellow);
+      border-color:var(--yellow);
+    }
+
+    .mini-box .lbl{
+      display:block;
+      font-size:9px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-weight:800;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .mini-box.hot .lbl,
+    .mini-box.hot .val{
+      color:#1b1f24;
+    }
+
+    .mini-box .val{
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:-.02em;
+      color:#1d232a;
+    }
+
+    .note{
+      margin-top:10px;
+      font-size:10px;
+      color:var(--muted);
+    }
+
+    .bottom-row{
+      display:grid;
+      grid-template-columns: 1.1fr 1.55fr 1.1fr;
+      gap:14px;
+      margin-top:18px;
+      align-items:start;
+    }
+
+    .mini-panel{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:12px 12px 10px;
+      min-height:200px;
+    }
+
+    .mini-panel h4{
+      margin:0 0 10px;
+      font-size:13px;
+      font-weight:800;
+      color:#1d232a;
+    }
+
+    .mini-card{
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:linear-gradient(180deg,#f7f9fb,#f3f6f8);
+      padding:8px 10px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px 10px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+
+    .mini-card .thumb-mini{
+      width:100%;
+      height:52px;
+      background:linear-gradient(180deg,#dfeaf5,#dfeaf5);
+      border-radius:6px;
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+    }
+
+    .mini-card .thumb-mini .body{
+      position:absolute; inset:12px 8px 8px 14px;
+      background:#dfe3eb;
+      border-radius:8px 8px 6px 6px;
+    }
+    .mini-card .thumb-mini .wheel{
+      position:absolute; width:10px;height:10px;border-radius:50%;
+      background:#1d232a; bottom:9px;
+    }
+    .mini-card .thumb-mini .wheel.left{left:10px}
+    .mini-card .thumb-mini .wheel.right{right:10px}
+    .mini-card .thumb-mini .roof{
+      position:absolute; left:24px; right:20px; top:9px; height:12px; border-radius:8px;
+      background:#d9e1ea;
+    }
+
+    .mini-card .small{
+      font-size:10px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+
+    .mini-card .small strong{
+      font-size:11px;
+      color:#1d232a;
+      display:block;
+      margin-bottom:2px;
+    }
+
+    .mini-card .price-small{
+      font-size:11px;
+      font-weight:800;
+      color:#1d232a;
+      text-align:right;
+      white-space:nowrap;
+    }
+
+    .offer-list{
+      display:grid;
+      gap:8px;
+    }
+
+    .offer-item{
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:#f6f9fb;
+      padding:10px 10px 8px;
+      display:grid;
+      gap:8px;
+    }
+    .offer-item .head{
+      display:flex;justify-content:space-between;align-items:center;gap:8px;
+      font-size:11px;
+      color:#263241;
+    }
+    .offer-item .head strong{font-size:12px}
+    .offer-item .text{
+      font-size:10px; color:var(--muted); line-height:1.4;
+    }
+
+    .offer-actions{
+      display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap;
+    }
+
+    .btn-small{
+      height:26px;
+      padding:0 10px;
+      font-size:10px;
+      border-radius:6px;
+    }
+
+    .ad-form{
+      padding:12px 12px 14px;
+    }
+
+    .ad-form form{
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .two{
+      display:grid;grid-template-columns:1fr 1fr; gap:8px;
+    }
+
+    .field input[type="file"]{
+      padding:6px 8px;
+      font-size:10px;
+      height:auto;
+      min-height:32px;
+    }
+
+    textarea{
+      width:100%;
+      min-height:70px;
+      resize:vertical;
+      border:1px solid var(--line);
+      border-radius:7px;
+      background:#fff;
+      padding:8px 10px;
+      font:inherit;
+      font-size:11px;
+      color:#1a1f2a;
+    }
+
+    .submit-wrap{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:4px;
+      flex-wrap:wrap;
+    }
+
+    .error{
+      font-size:10px;
+      color:#be3737;
+      min-height:12px;
+      font-weight:600;
+    }
+
+    @media (max-width: 1100px){
+      .bottom-row{
+        grid-template-columns:1fr;
+      }
+      .layout{
+        grid-template-columns:1fr;
+      }
+      .sidebar{
+        max-width:900px;
+      }
+    }
+
+    @media (max-width: 640px){
+      .app{padding:8px 10px 20px}
+      .filter-grid{grid-template-columns:1fr}
+      .card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .detail-body{padding:12px}
+      .row1{flex-direction:column;align-items:flex-start}
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .sim-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .two{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="mini"></span>
+        <span>Kartu Kendaraan</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <section class="panel search-panel">
+          <div class="chip-group">
+            <div class="seg">
+              <button type="button" class="active">Mobil</button>
+              <button type="button">Motor</button>
+            </div>
+          </div>
+
+          <div class="filter-grid">
+            <div class="field">
+              <label>Brand</label>
+              <select>
+                <option>Semua</option>
+                <option>Toyota</option>
+                <option>Honda</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Harga</label>
+              <select>
+                <option>Semua</option>
+                <option>Rp 50 - 200 jt</option>
+                <option>Rp 200 - 400 jt</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Tahun</label>
+              <select>
+                <option>Semua</option>
+                <option>2023 ke atas</option>
+                <option>2021 ke atas</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Transmisi</label>
+              <select>
+                <option>Semua</option>
+                <option>Manual</option>
+                <option>Otomatis</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel list-panel">
+          <div class="card-grid">
+            <article class="car-card active">
+              <div class="thumb">
+                <svg viewBox="0 0 180 80" preserveAspectRatio="none" aria-hidden="true">
+                  <rect x="12" y="18" width="112" height="25" rx="8" class="body"></rect>
+                  <rect x="56" y="8" width="46" height="18" rx="5" fill="#dfe5eb"></rect>
+                  <rect x="22" y="40" width="108" height="18" rx="8" class="body"></rect>
+                  <circle cx="42" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="116" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="42" cy="60" r="5" fill="#b9c3cc"></circle>
+                  <circle cx="116" cy="60" r="5" fill="#b9c3cc"></circle>
+                </svg>
+                <div class="plate">BG</div>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Toyota Avanza</h3>
+                <div class="card-meta">1.3 G MT · 2021</div>
+                <div class="price">Rp 185.000.000</div>
+              </div>
+            </article>
+
+            <article class="car-card">
+              <div class="thumb">
+                <svg viewBox="0 0 180 80" preserveAspectRatio="none" aria-hidden="true">
+                  <rect x="16" y="18" width="110" height="24" rx="8" class="body"></rect>
+                  <rect x="52" y="9" width="48" height="16" rx="5" fill="#e45b54"></rect>
+                  <rect x="20" y="40" width="106" height="18" rx="8" class="body"></rect>
+                  <circle cx="42" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="114" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="42" cy="60" r="5" fill="#b9c3cc"></circle>
+                  <circle cx="114" cy="60" r="5" fill="#b9c3cc"></circle>
+                </svg>
+                <div class="plate">B</div>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Honda Brio</h3>
+                <div class="card-meta">RS CVT · 2022</div>
+                <div class="price">Rp 188.000.000</div>
+              </div>
+            </article>
+
+            <article class="car-card">
+              <div class="thumb">
+                <svg viewBox="0 0 180 80" preserveAspectRatio="none" aria-hidden="true">
+                  <rect x="12" y="16" width="126" height="28" rx="8" class="body"></rect>
+                  <rect x="64" y="8" width="52" height="18" rx="5" fill="#dfe5eb"></rect>
+                  <rect x="18" y="40" width="122" height="18" rx="8" class="body"></rect>
+                  <circle cx="44" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="124" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="44" cy="60" r="5" fill="#b9c3cc"></circle>
+                  <circle cx="124" cy="60" r="5" fill="#b9c3cc"></circle>
+                </svg>
+                <div class="plate">BG</div>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Toyota Fortuner</h3>
+                <div class="card-meta">2.4 VRZ AT · 2020</div>
+                <div class="price">Rp 435.000.000</div>
+              </div>
+            </article>
+
+            <article class="car-card">
+              <div class="thumb">
+                <svg viewBox="0 0 180 80" preserveAspectRatio="none" aria-hidden="true">
+                  <rect x="12" y="18" width="120" height="25" rx="8" class="body"></rect>
+                  <rect x="54" y="8" width="48" height="16" rx="5" fill="#dfe5eb"></rect>
+                  <rect x="20" y="40" width="116" height="18" rx="8" class="body"></rect>
+                  <circle cx="42" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="120" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="42" cy="60" r="5" fill="#b9c3cc"></circle>
+                  <circle cx="120" cy="60" r="5" fill="#b9c3cc"></circle>
+                </svg>
+                <div class="plate">L</div>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Mitsubishi Xpander</h3>
+                <div class="card-meta">Ultimate AT · 2023</div>
+                <div class="price">Rp 255.000.000</div>
+              </div>
+            </article>
+
+            <article class="car-card">
+              <div class="thumb">
+                <svg viewBox="0 0 180 80" preserveAspectRatio="none" aria-hidden="true">
+                  <rect x="34" y="18" width="98" height="26" rx="8" class="body"></rect>
+                  <rect x="42" y="12" width="40" height="10" rx="4" fill="#dfe5eb"></rect>
+                  <rect x="26" y="42" width="108" height="14" rx="6" class="body"></rect>
+                  <circle cx="42" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="118" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="42" cy="60" r="5" fill="#b9c3cc"></circle>
+                  <circle cx="118" cy="60" r="5" fill="#b9c3cc"></circle>
+                </svg>
+                <div class="plate">BG</div>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Honda Vario 160</h3>
+                <div class="card-meta">CBS · 2023</div>
+                <div class="price">Rp 24.500.000</div>
+              </div>
+            </article>
+
+            <article class="car-card">
+              <div class="thumb">
+                <svg viewBox="0 0 180 80" preserveAspectRatio="none" aria-hidden="true">
+                  <rect x="48" y="18" width="84" height="24" rx="8" class="body"></rect>
+                  <rect x="58" y="12" width="32" height="10" rx="4" fill="#dfe5eb"></rect>
+                  <rect x="32" y="40" width="98" height="16" rx="6" class="body"></rect>
+                  <circle cx="42" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="118" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="42" cy="60" r="5" fill="#b9c3cc"></circle>
+                  <circle cx="118" cy="60" r="5" fill="#b9c3cc"></circle>
+                </svg>
+                <div class="plate">D</div>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Yamaha NMAX 155</h3>
+                <div class="card-meta">Connected ABS · 2022</div>
+                <div class="price">Rp 26.000.000</div>
+              </div>
+            </article>
+
+            <article class="car-card">
+              <div class="thumb">
+                <svg viewBox="0 0 180 80" preserveAspectRatio="none" aria-hidden="true">
+                  <rect x="30" y="18" width="100" height="22" rx="8" class="body"></rect>
+                  <rect x="38" y="10" width="46" height="11" rx="4" fill="#dfe5eb"></rect>
+                  <rect x="26" y="38" width="106" height="14" rx="6" class="body"></rect>
+                  <circle cx="42" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="118" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="42" cy="60" r="5" fill="#b9c3cc"></circle>
+                  <circle cx="118" cy="60" r="5" fill="#b9c3cc"></circle>
+                </svg>
+                <div class="plate">BE</div>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Honda Beat</h3>
+                <div class="card-meta">Street CBS · 2021</div>
+                <div class="price">Rp 12.500.000</div>
+              </div>
+            </article>
+
+            <article class="car-card">
+              <div class="thumb">
+                <svg viewBox="0 0 180 80" preserveAspectRatio="none" aria-hidden="true">
+                  <rect x="30" y="18" width="106" height="20" rx="8" class="body"></rect>
+                  <rect x="45" y="10" width="54" height="12" rx="4" fill="#dfe5eb"></rect>
+                  <rect x="22" y="38" width="112" height="16" rx="6" class="body"></rect>
+                  <circle cx="46" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="122" cy="60" r="12" fill="#191d22"></circle>
+                  <circle cx="46" cy="60" r="5" fill="#b9c3cc"></circle>
+                  <circle cx="122" cy="60" r="5" fill="#b9c3cc"></circle>
+                </svg>
+                <div class="plate">B</div>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Kawasaki Ninja 250</h3>
+                <div class="card-meta">SE ABS · 2020</div>
+                <div class="price">Rp 48.000.000</div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </aside>
+
+      <main class="main">
+        <div class="detail-header">
+          <div class="crumb">Beranda &nbsp;›&nbsp; Cari Kendaraan</div>
+          <div class="crumb">Detail &nbsp;›&nbsp; Toyota Fortuner</div>
+        </div>
+
+        <section class="detail-card">
+          <div class="vehicle-art">
+            <svg viewBox="0 0 760 220" preserveAspectRatio="none" aria-hidden="true">
+              <rect x="0" y="0" width="760" height="220" fill="#e3edf7"/>
+              <rect x="160" y="80" width="310" height="36" rx="10" fill="#d8e0ea"/>
+              <rect x="100" y="120" width="420" height="56" rx="10" fill="#dfe6eb"/>
+              <rect x="148" y="102" width="175" height="20" rx="8" fill="#dfe6eb"/>
+              <circle cx="220" cy="176" r="28" fill="#171d22"/>
+              <circle cx="220" cy="176" r="10" fill="#aeb7c1"/>
+              <circle cx="488" cy="176" r="28" fill="#171d22"/>
+              <circle cx="488" cy="176" r="10" fill="#aeb7c1"/>
+            </svg>
+            <div class="plate">BG</div>
+          </div>
+
+          <div class="detail-body">
+            <div class="row1">
+              <div class="name-wrap">
+                <h2>Toyota Fortuner</h2>
+                <div class="variant">2.4 VRZ AT Diesel</div>
+              </div>
+              <div class="price-big">Rp 435.000.000</div>
+            </div>
+
+            <div class="stats">
+              <div class="stat">
+                <span class="label">Tahun</span>
+                <span class="value">2020</span>
+              </div>
+              <div class="stat">
+                <span class="label">Jarak</span>
+                <span class="value">61.000 km</span>
+              </div>
+              <div class="stat">
+                <span class="label">Transmisi</span>
+                <span class="value">Otomatis</span>
+              </div>
+            </div>
+
+            <p class="desc">
+              Kondisi mesin halus, kaki-kaki senyap. Velg dan ban masih tebal, jok kulit rawat. Garansi mesin 3 bulan dari dealer.
+              Pemilik dan dokumen lengkap. Cocok untuk keluarga atau kebutuhan off-road ringan.
+            </p>
+
+            <div class="seller-box">
+              <div class="seller">
+                <div class="avatar">S</div>
+                <div class="seller-info">
+                  <b>Srivijaya Auto</b>
+                  <small>Dealer · Palembang · Terverifikasi</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="input-row">
+              <input class="money" type="text" value="Rp 413.250.000" />
+              <button class="btn btn-primary">Kirim tawaran</button>
+            </div>
+
+            <div class="offer-status">
+              <span class="pill accept">Diterima</span>
+              <span>Tawaran Rp 413.250.000 diterima. Hubungi penjual untuk jadwal lihat unit.</span>
+            </div>
+
+            <div class="simbox">
+              <div class="sim-head">
+                <h3>Simulasi cicilan</h3>
+                <div class="sim-selects">
+                  <select>
+                    <option>DP 25%</option>
+                    <option>DP 10%</option>
+                    <option>DP 20%</option>
+                    <option>DP 30%</option>
+                  </select>
+                  <select>
+                    <option>36 bulan</option>
+                    <option>12 bulan</option>
+                    <option>24 bulan</option>
+                    <option>48 bulan</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="sim-grid">
+                <div class="mini-box hot">
+                  <span class="lbl">Cicilan per bulan</span>
+                  <span class="val">Rp 10.034.000</span>
+                </div>
+                <div class="mini-box">
+                  <span class="lbl">Uang muka</span>
+                  <span class="val">Rp 108.750.000</span>
+                </div>
+                <div class="mini-box">
+                  <span class="lbl">Pokok pembiayaan</span>
+                  <span class="val">Rp 326.250.000</span>
+                </div>
+                <div class="mini-box">
+                  <span class="lbl">Total dibayar</span>
+                  <span class="val">Rp 470.100.000</span>
+                </div>
+              </div>
+
+              <div class="note">Estimasi dengan bunga flat. Angka sebenarnya mengikuti lembaga pembiayaan.</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="bottom-row">
+      <section class="mini-panel">
+        <h4>Favorit saya (3)</h4>
+
+        <div class="mini-card">
+          <div class="thumb-mini">
+            <div class="roof"></div>
+            <div class="body"></div>
+            <div class="wheel left"></div>
+            <div class="wheel right"></div>
+          </div>
+          <div class="small">
+            <strong>Toyota Fortuner</strong>
+            2020 · 61.000 km<br>
+            <span style="display:block;margin-top:6px;color:#252d36;font-weight:700;">Rp 435.000.000</span>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <div class="thumb-mini">
+            <div class="roof"></div>
+            <div class="body"></div>
+            <div class="wheel left"></div>
+            <div class="wheel right"></div>
+          </div>
+          <div class="small">
+            <strong>Honda Vario 160</strong>
+            2023 · 6.000 km<br>
+            <span style="display:block;margin-top:6px;color:#252d36;font-weight:700;">Rp 24.500.000</span>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <div class="thumb-mini">
+            <div class="roof"></div>
+            <div class="body"></div>
+            <div class="wheel left"></div>
+            <div class="wheel right"></div>
+          </div>
+          <div class="small">
+            <strong>Yamaha NMAX 155</strong>
+            2022 · 15.000 km<br>
+            <span style="display:block;margin-top:6px;color:#252d36;font-weight:700;">Rp 26.000.000</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="mini-panel">
+        <h4>Tawaran saya</h4>
+
+        <div class="offer-list">
+          <div class="offer-item">
+            <div class="head">
+              <strong>Toyota Fortuner</strong>
+              <span class="pill accept">Diterima</span>
+            </div>
+            <div class="text">Tawaran Anda Rp 413.250.000 dari harga Rp 435.000.000. Silakan hubungi penjual untuk atur jadwal.</div>
+            <div class="offer-actions">
+              <button class="btn btn-small">Lihat iklan</button>
+            </div>
+          </div>
+
+          <div class="offer-item">
+            <div class="head">
+              <strong>Honda Vario 160</strong>
+              <span class="pill counter">Balasan</span>
+            </div>
+            <div class="text">Tawaran Anda Rp 21.000.000. Penjual menawarkan Rp 23.500.000.</div>
+            <div class="offer-actions">
+              <button class="btn btn-small btn-primary">Setuju</button>
+              <button class="btn btn-small">Lihat</button>
+            </div>
+          </div>
+
+          <div class="offer-item">
+            <div class="head">
+              <strong>Yamaha NMAX 155</strong>
+              <span class="pill reject">Ditolak</span>
+            </div>
+            <div class="text">Tawaran Anda Rp 20.000.000 ditolak. Coba naikkan tawaran Anda.</div>
+            <div class="offer-actions">
+              <button class="btn btn-small">Lihat</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mini-panel ad-form">
+        <h4>Pasang iklan kendaraan</h4>
+
+        <form>
+          <div class="two">
+            <div class="field">
+              <label>Jenis</label>
+              <select>
+                <option>Mobil</option>
+                <option>Motor</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Merek</label>
+              <input type="text" value="Toyota" />
+            </div>
+          </div>
+
+          <div class="two">
+            <div class="field">
+              <label>Model</label>
+              <input type="text" value="Fortuner" />
+            </div>
+            <div class="field">
+              <label>Varian</label>
+              <input type="text" value="2.4 VRZ AT" />
+            </div>
+          </div>
+
+          <div class="two">
+            <div class="field">
+              <label>Tahun</label>
+              <input type="text" value="2020" />
+            </div>
+            <div class="field">
+              <label>Harga</label>
+              <input type="text" value="435.000.000" />
+            </div>
+          </div>
+
+          <div class="two">
+            <div class="field">
+              <label>Km</label>
+              <input type="text" value="61.000" />
+            </div>
+            <div class="field">
+              <label>Transmisi</label>
+              <select>
+                <option>Otomatis</option>
+                <option>Manual</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="two">
+            <div class="field">
+              <label>Warna</label>
+              <input type="text" value="Putih" />
+            </div>
+            <div class="field">
+              <label>Kota</label>
+              <input type="text" value="Palembang" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Deskripsi</label>
+            <textarea>Kondisi mesin halus, kaki-kaki senyap, velg dan ban tebal, seri lengkap.</textarea>
+          </div>
+
+          <div class="field">
+            <label>Foto (opsional)</label>
+            <input type="file" />
+          </div>
+
+          <div class="submit-wrap">
+            <div class="error"></div>
+            <button class="btn btn-primary">Terbitkan iklan</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</body>
+</html>
